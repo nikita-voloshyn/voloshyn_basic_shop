@@ -11,28 +11,68 @@
 <div class="container mt-3">
     <div class="row">
         <div class="col-md-3">
-            <button class="btn btn-primary" id="myOrdersButton">Мої замовлення</button>
-            <ul class="list-group" id="categories"></ul>
-        </div>
-
-        <div class="col-md-6">
             <div class="card">
-                <div class="card-body" id="products"></div>
+                <div class="card-body" id="categories">
+                    <h5>Категорії товарів:</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item" data-category="electronics">Електроніка</li>
+                        <li class="list-group-item" data-category="clothing">Одяг</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-6" id="products">
+            <h5>Товари:</h5>
+        </div>
+
+        <div class="col-md-3" id="cart" style="display: none;">
             <div class="card">
-                <div class="card-body" id="productInfo"></div>
-                <button class="btn btn-primary" id="buyButton">Купити</button>
+                <div class="card-body">
+                    <h5 class="card-title">Корзина</h5>
+                    <ul class="list-group" id="cartItems">
+                    </ul>
+                    <button class="btn btn-primary mt-3" id="checkoutButton">Оформити замовлення</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<div id="orderForm" style="display: none;">
+    <h5>Форма оформлення замовлення</h5>
+    <form id="orderForm">
+        <div class="form-group">
+            <label for="fullName">ПІБ покупця:</label>
+            <input type="text" class="form-control" id="fullName" required>
+        </div>
+        <div class="form-group">
+            <label for="city">Місто:</label>
+            <input type="text" class="form-control" id="city" required>
+        </div>
+        <div class="form-group">
+            <label for="postOffice">Склад Нової пошти:</label>
+            <input type="text" class="form-control" id="postOffice" required>
+        </div>
+        <div class="form-group">
+            <label for="paymentMethod">Спосіб оплати:</label>
+            <select class="form-control" id="paymentMethod" required>
+                <option value="cash">Готівкою при отриманні</option>
+                <option value="card">Оплата банківською карткою</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="quantity">Кількість:</label>
+            <input type="number" class="form-control" id="quantity" required>
+        </div>
+        <div class="form-group">
+            <label for="comment">Коментар:</label>
+            <textarea class="form-control" id="comment"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitOrderButton">Підтвердити замовлення</button>
+    </form>
+</div>
+
 <script src="script.js"></script>
 </body>
 </html>

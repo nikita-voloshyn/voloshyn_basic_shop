@@ -1,120 +1,136 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const myOrdersButton = document.getElementById('myOrdersButton');
     const categoriesElement = document.getElementById('categories');
     const productsElement = document.getElementById('products');
-    const productInfoElement = document.getElementById('productInfo');
-    const buyButton = document.getElementById('buyButton');
+    const cartElement = document.getElementById('cart');
+    const cartItemsElement = document.getElementById('cartItems');
+    const checkoutButton = document.getElementById('checkoutButton');
+    const showOrdersButton = document.getElementById('showOrdersButton');
+    const orderFormElement = document.getElementById('orderForm');
+    const submitOrderButton = document.getElementById('submitOrderButton');
+    const ordersElement = document.getElementById('orders');
+    const orderListElement = document.getElementById('orderList');
 
-    const productsData = {
-        electronics: [
-            {id: 1, name: 'Смартфон', price: 500},
-            {id: 2, name: 'Ноутбук', price: 1000},
-        ],
-        clothing: [
-            {id: 3, name: 'Футболка', price: 20},
-            {id: 4, name: 'Джинси', price: 50},
-        ],
-    };
+    if (categoriesElement && productsElement && cartElement && cartItemsElement && checkoutButton && orderFormElement && submitOrderButton) {
+        const productsData = {
+            electronics: [
+                {id: 1, name: 'Смартфон', price: 500},
+                {id: 2, name: 'Ноутбук', price: 1000},
+            ],
+            clothing: [
+                {id: 3, name: 'Футболка', price: 20},
+                {id: 4, name: 'Джинси', price: 50},
+            ],
+        };
 
-    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        function displayCategories() {
+            categoriesElement.innerHTML = '<h5>Категорії товарів:</h5>';
+            const categoriesList = document.createElement('ul');
+            categoriesList.classList.add('list-group');
 
-    function showCategories() {
-        categoriesElement.innerHTML = '';
-        for (const category in productsData) {
-            const categoryElement = document.createElement('li');
-            categoryElement.className = 'list-group-item';
-            categoryElement.innerText = category;
-            categoryElement.setAttribute('data-category', category);
-            categoriesElement.appendChild(categoryElement);
+            for (const category in productsData) {
+                const categoryItem = document.createElement('li');
+                categoryItem.classList.add('list-group-item');
+                categoryItem.setAttribute('data-category', category);
+                categoryItem.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                categoriesList.appendChild(categoryItem);
+            }
+
+            categoriesElement.appendChild(categoriesList);
         }
-    }
 
-    function showCategory(event) {
-        if (event.target.tagName === 'LI') {
-            const category = event.target.getAttribute('data-category');
-            displayProducts(productsData[category]);
-        }
-    }
+        function displayProducts(category) {
+            productsElement.innerHTML = '<h5>Товари:</h5>';
 
-    function displayProducts(products) {
-        productsElement.innerHTML = '';
-
-        if (products) {
-            products.forEach(product => {
+            productsData[category].forEach(product => {
                 const productElement = document.createElement('div');
-                productElement.innerHTML = `<p>${product.name} - ${product.price}$</p>`;
-                productElement.onclick = () => showProductInfo(product);
+                productElement.innerHTML = `<p>${product.name} - ${product.price}$ <button class="btn btn-sm btn-primary add-to-cart" data-id="${product.id}">Додати до корзини</button></p>`;
                 productsElement.appendChild(productElement);
             });
         }
-    }
 
-    function showProductInfo(product) {
-        productInfoElement.innerHTML = `<p>ID: ${product.id}</p><p>Назва: ${product.name}</p><p>Ціна: ${product.price}$</p>`;
-    }
+        function addToCart(productId) {
+            const product = getProductById(productId);
 
-    function buyProduct() {
-        const productInfoHtml = productInfoElement.innerHTML;
+            const cartItemElement = document.createElement('li');
+            cartItemElement.classList.add('list-group-item');
+            cartItemElement.textContent = `${product.name} - ${product.price}$`;
 
-        if (productInfoHtml) {
-            const tempElement = document.createElement('div');
-            tempElement.innerHTML = productInfoHtml;
+            cartItemsElement.appendChild(cartItemElement);
 
-            const selectedProduct = {
-                id: tempElement.querySelector('p:nth-child(1)').innerText.split(': ')[1],
-                name: tempElement.querySelector('p:nth-child(2)').innerText.split(': ')[1],
-                price: tempElement.querySelector('p:nth-child(3)').innerText.split(': ')[1],
-            };
-
-            const order = {...selectedProduct, date: new Date().toLocaleString()};
-            orders.push(order);
-            localStorage.setItem('orders', JSON.stringify(orders));
-            alert('Товар куплений!');
-            productInfoElement.innerHTML = '';
-        } else {
-            alert('Виберіть товар перед покупкою.');
+            updateCartVisibility();
         }
-    }
 
+        function getProductById(productId) {
+            for (const category in productsData) {
+                const product = productsData[category].find(p => p.id === productId);
+                if (product) {
+                    return product;
+                }
+            }
+            return null;
+        }
 
-    function showMyOrders() {
-        categoriesElement.innerHTML = '<p>Мої замовлення</p>';
-        productsElement.innerHTML = '';
+        function updateCartVisibility() {
+            if (cartItemsElement.children.length > 0) {
+                cartElement.style.display = 'block';
+            } else {
+                cartElement.style.display = 'none';
+            }
+        }
 
-        orders.forEach(order => {
-            const orderElement = document.createElement('div');
-            orderElement.innerHTML = `<p>${order.date} - ${order.price}$</p>`;
-            orderElement.onclick = () => showOrderDetails(order);
-            productsElement.appendChild(orderElement);
+        function showOrderForm() {
+            orderFormElement.style.display = 'block';
+        }
+
+        function submitOrder(event) {
+            event.preventDefault();
+
+            const fullName = document.getElementById('fullName').value;
+            const city = document.getElementById('city').value;
+            const postOffice = document.getElementById('postOffice').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const quantity = document.getElementById('quantity').value;
+            const comment = document.getElementById('comment').value;
+
+            if (!fullName || !city || !postOffice || !paymentMethod || !quantity) {
+                alert('Будь ласка, заповніть всі обов\'язкові поля форми.');
+            } else {
+                const orderInfo = `Інформація про замовлення:\n
+                          ПІБ покупця: ${fullName}\n
+                          Місто: ${city}\n
+                          Склад Нової пошти: ${postOffice}\n
+                          Спосіб оплати: ${paymentMethod}\n
+                          Кількість: ${quantity}\n
+                          Коментар: ${comment}`;
+
+                alert(orderInfo);
+                cartItemsElement.innerHTML = '';
+                cartElement.style.display = 'none';
+                orderFormElement.style.display = 'none';
+            }
+        }
+
+        categoriesElement.addEventListener('click', function (event) {
+            if (event.target.tagName === 'LI') {
+                const category = event.target.getAttribute('data-category');
+                displayProducts(category);
+            }
         });
 
-        const backButton = document.createElement('button');
-        backButton.innerText = 'Назад до категорій';
-        backButton.classList.add('btn', 'btn-primary', 'mt-3');
-        backButton.onclick = () => showCategories();
-        productsElement.appendChild(backButton);
+        productsElement.addEventListener('click', function (event) {
+            if (event.target.classList.contains('add-to-cart')) {
+                const productId = parseInt(event.target.getAttribute('data-id'));
+                addToCart(productId);
+            }
+        });
+
+        checkoutButton.addEventListener('click', showOrderForm);
+
+        submitOrderButton.addEventListener('click', submitOrder);
+
+        displayCategories();
+
+    } else {
+        console.error('Не вдалося знайти всі необхідні елементи на сторінці.');
     }
-
-
-    function showOrderDetails(order) {
-        productInfoElement.innerHTML = `<p>ID: ${order.id}</p><p>Назва: ${order.name}</p><p>Ціна: ${order.price}$</p>`;
-        const deleteButton = document.createElement('button');
-        deleteButton.innerText = 'Видалити замовлення';
-        deleteButton.classList.add('btn', 'btn-danger');
-        deleteButton.onclick = () => deleteOrder(order);
-        productInfoElement.appendChild(deleteButton);
-    }
-
-
-    function deleteOrder(order) {
-        orders = orders.filter(o => o !== order);
-        localStorage.setItem('orders', JSON.stringify(orders));
-        showMyOrders();
-        productInfoElement.innerHTML = '';
-    }
-
-    showCategories();
-    categoriesElement.addEventListener('click', showCategory);
-    myOrdersButton.addEventListener('click', showMyOrders);
-    buyButton.addEventListener('click', buyProduct);
 });
